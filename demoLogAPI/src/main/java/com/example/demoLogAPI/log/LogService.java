@@ -4,16 +4,19 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
 @Service
 public class LogService {
 
+	//@Autowired
 	private final LogRepository logRepository;
 	
-	@Autowired
+	
 	public LogService(LogRepository logRepository) {
 		
 		this.logRepository = logRepository;
@@ -59,6 +62,42 @@ public class LogService {
 		
 		
 	}
+	
+	public void addLogEntryText(int levelPos, int classPos, String logEntry) {
+		
+		LogDefaultRecord logRecord = new LogDefaultRecord();
+		logRecord.setDateTime(LocalDateTime.now());
+		logRecord.setContent(logEntry);
+		
+		try (Scanner scanner = new Scanner(logEntry);) {
+		    int nword = 0;
+		    while (scanner.hasNext()) {
+		    String sentWord = scanner.next();
+		    if(nword == levelPos)
+		    	logRecord.setLevel(sentWord);
+		    else if(nword == classPos) {
+		    	logRecord.setClassName(sentWord);
+		    	break;
+		    }
+		    nword++;
+		    
+		    }
+		}
+		
+		
+		logRepository.save(logRecord);
+		
+		
+	}
+	
+	
+	public Page<LogDefaultRecord> getLogs(LocalDateTime start, LocalDateTime end, int pageSize, int pageNumber){
+		
+		Pageable pageable = PageRequest.of(pageNumber, pageSize);
+		return logRepository.findByDateTimeBetween( start, end, pageable);
+
+	}
+	
 	
 	
 }
