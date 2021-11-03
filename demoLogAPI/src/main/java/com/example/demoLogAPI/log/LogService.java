@@ -27,7 +27,6 @@ public class LogService {
 		return logRepository.findAll();
 	}
 	
-	
 	public void addLogEntry(LogDefaultRecord logRecord) {
 		
 				
